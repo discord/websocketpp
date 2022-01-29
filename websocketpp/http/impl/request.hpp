@@ -71,8 +71,9 @@ inline size_t request::consume(char const * buf, size_t len) {
         
         if (m_header_bytes > max_header_size) {
             // exceeded max header size
-            throw exception("Maximum header size exceeded.",
-                status_code::request_header_fields_too_large);
+            /*throw exception("Maximum header size exceeded.",
+                status_code::request_header_fields_too_large);*/
+            return 0;
         }
 
         if (end == m_buf->end()) {
@@ -89,7 +90,8 @@ inline size_t request::consume(char const * buf, size_t len) {
         if (end-begin == 0) {
             // we got a blank line
             if (m_method.empty() || get_header("Host").empty()) {
-                throw exception("Incomplete Request",status_code::bad_request);
+                //throw exception("Incomplete Request",status_code::bad_request);
+                return 0;
             }
 
             bytes_processed = (
@@ -150,7 +152,8 @@ inline std::string request::raw_head() const {
 
 inline void request::set_method(std::string const & method) {
     if (std::find_if(method.begin(),method.end(),is_not_token_char) != method.end()) {
-        throw exception("Invalid method token.",status_code::bad_request);
+        //throw exception("Invalid method token.",status_code::bad_request);
+        return;
     }
 
     m_method = method;
@@ -168,7 +171,8 @@ inline void request::process(std::string::iterator begin, std::string::iterator
     std::string::iterator cursor_end = std::find(begin,end,' ');
 
     if (cursor_end == end) {
-        throw exception("Invalid request line1",status_code::bad_request);
+        //throw exception("Invalid request line1",status_code::bad_request);
+        return;
     }
 
     set_method(std::string(cursor_start,cursor_end));
@@ -177,7 +181,8 @@ inline void request::process(std::string::iterator begin, std::string::iterator
     cursor_end = std::find(cursor_start,end,' ');
 
     if (cursor_end == end) {
-        throw exception("Invalid request line2",status_code::bad_request);
+        //throw exception("Invalid request line2",status_code::bad_request);
+        return;
     }
 
     set_uri(std::string(cursor_start,cursor_end));
